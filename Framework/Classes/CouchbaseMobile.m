@@ -187,6 +187,11 @@ static const NSTimeInterval kWaitTimeout = 30.0;    // How long to wait for Couc
                             fromDir: _bundlePath
                               toDir: _rootDirectory])
         return NO;
+    
+    // Redirect stdout somewhere. Otherwise Erlang will lock up in iOS 5.1+ when it calls printf. (CBMI-72)
+    NSString* stdoutFile = [self.logDirectory stringByAppendingPathComponent: @"stdout.txt"];
+    NSLog(@"Couchbase: Redirecting stdout to %@", stdoutFile);
+    freopen([stdoutFile UTF8String], "w+", stdout);
 
     _started = YES;
     [self performSelector: @selector(startupTimeout) withObject: nil afterDelay: kWaitTimeout];
